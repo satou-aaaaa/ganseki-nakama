@@ -103,7 +103,7 @@ check("乱数は sort の比較の中で引かない（ブラウザで引く回�
 check("言い方：「必ず」「絶対」と言い切らない（岩石は分け方にいつもぴったり当てはまるわけではない）・画像を入れない", !/絶対に|必ず(当て|わか|見分|この岩)/.test(html + gen + readme) && !/<img/.test(html));
 { const howto = (html.match(/<dialog id="howto"[\s\S]*?<\/dialog>/) || [""])[0], ab = (html.match(/function about\(\)[\s\S]*?\n}/) || [""])[0], dis = (t) => /鑑定の代わりではありません/.test(t) && /ぴったり当てはまるわけではありません/.test(t) && /言いかえ/.test(t);
   check("言い方：遊び方・「このゲームについて」・README のどれにも、解説を言いかえた文であること・岩石は分け方にいつもぴったり当てはまるわけではないこと・鑑定の代わりではないことがある", dis(howto) && dis(ab) && dis(readme), `遊び方 ${dis(howto)}・について ${dis(ab)}・README ${dis(readme)}`); }
-check("写し元（SDGsの目標あて・震度よみ・憲法のしくみ）の言葉が残っていない（game-dev.md A 手順5）", !/SDG|ターゲット|仮訳|外務省|アジェンダ|震度|気象庁|解説表|地震|jma\\.go|shd|SHD|ようす帳|憲法|kenpo|kps|KPS/.test(html + gen + readme));
+check("写し元（SDGsの目標あて・震度よみ・憲法のしくみ）の言葉が残っていない（共通部品 store の中は除く・game-dev.md A 手順5）", !/SDG|ターゲット|仮訳|外務省|アジェンダ|震度|気象庁|解説表|地震|jma\\.go|shd|SHD|ようす帳|憲法|kenpo|kps|KPS/.test(html.replace(/<!-- store:begin[\s\S]*?<!-- store:end -->/, "") + gen + readme));
 check("画面にお笑いの言葉を入れない（本物っぽく）", !/お笑い|ギャグ|ツッコミ|なんでやねん|（うそ）/.test(html + gen));
 check("引き継ぎ：transfer.js をゲームの script より前に、このゲームの記録のキー（記録・文字・復習）だけで読む・depth.js も前に読む", /<script src="transfer\.js" data-game="ganseki-nakama" data-keys="gnk-v1,gnk-fs,gnk-depth"><\/script>\s*<script src="depth\.js" data-game="ganseki-nakama" data-key="gnk-depth"><\/script>\s*<\/head>/.test(html) && html.indexOf('src="transfer.js"') < html.indexOf('src="data.js"') && /data-hk/.test(html) && existsSync(path.join(root, "transfer.js")));
 check("好きなだけ遊べる：チケット・回数の上限・🔒で開くモードを入れない（game-dev.md F1・F2）", !/🎫|チケット|すると開く|🔒/.test(html) && !/\blife\b|ELIFE/.test(html));
