@@ -4,7 +4,8 @@
 // 火砕岩（凝灰岩など）は、資料で火成岩とも堆積岩とも分けられるとあるので出さない。花こう岩と閃緑岩（どちらも深成岩）、泥岩とシルト岩は、
 // 資料の言葉だけでは見分けられないので、閃緑岩・シルト岩は選び肢にも入れない。
 // 乱数 R は呼ぶ回数が毎回同じになるように使う（sort の比較の中では引かない）。同じ tag なら、どの端末でも同じ問題になる。
-// KINDS・言い回しの並びは最後に足すだけにする（並べ替え・削除をすると過去の日の問題が変わる）。
+// KINDS は最後に足すだけにし、足す種類には since:"YYYY-MM-DD"（出し始める日・公開の翌日以降）を付ける。
+// 日の抽選はその日にあった種類だけから選ぶので、過去の日と今日の5問は変わらない。言い回し（選び肢・問いの文）は足さない（保存ずみの tag から別の文ができるため）。
 (function (root) {
   "use strict";
   const LV = ["やさしい", "ふつう", "むずかしい"];
@@ -114,7 +115,7 @@
   ];
   KINDS.find((k) => k.id === "genbu2").name = "玄武岩（流紋岩とくらべる）"; // 岩石帳で「玄武岩」と見分ける
   const BY = Object.fromEntries(KINDS.map((k) => [k.id, k]));
-  const kindsOf = (lv) => KINDS.filter((k) => k.lv === lv).map((k) => k.id);
+  const kindsOf = (lv, date) => KINDS.filter((k) => k.lv === lv && (!date || !k.since || k.since <= date)).map((k) => k.id);
 
   function seedOf(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
   function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -131,12 +132,12 @@
 
   // 今日の5問（やさしい2・ふつう2・むずかしい1）。種類は重ねない
   function dailyTags(date) {
-    const R = rng(seedOf("day:" + date)), e = pickN(R, kindsOf(0), 2), n = pickN(R, kindsOf(1), 2), h = pickN(R, kindsOf(2), 1);
+    const R = rng(seedOf("day:" + date)), e = pickN(R, kindsOf(0, date), 2), n = pickN(R, kindsOf(1, date), 2), h = pickN(R, kindsOf(2, date), 1);
     return [...e, ...n, ...h].map((id, i) => `${id}|${date}:d${i}`);
   }
   // 上級の3問（むずかしいだけ・今日の5問のむずかしいとは別の種類）
   function hardTags(date) {
-    const dh = dailyTags(date)[4].split("|")[0], R = rng(seedOf("hard:" + date)), h = pickN(R, kindsOf(2).filter((x) => x !== dh), 3);
+    const dh = dailyTags(date)[4].split("|")[0], R = rng(seedOf("hard:" + date)), h = pickN(R, kindsOf(2, date).filter((x) => x !== dh), 3);
     return h.map((id, i) => `${id}|${date}:h${i}`);
   }
 
